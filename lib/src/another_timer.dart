@@ -2,58 +2,9 @@ import 'dart:async';
 
 /// A millisecond precision timer.
 class AnotherTimer implements Timer {
-  AnotherTimer._(this.duration, this._timer, this._watch);
-
   AnotherTimer(this.duration, void Function() callback)
       : _timer = Timer(duration, callback),
         _watch = Stopwatch()..start();
-
-  /// Creates a new repeating timer.
-  ///
-  /// The [callback] is invoked repeatedly with [duration] intervals until
-  /// canceled with the [cancel] function.
-  ///
-  /// The exact timing depends on the underlying timer implementation.
-  /// No more than `n` callbacks will be made in `duration * n` time,
-  /// but the time between two consecutive callbacks
-  /// can be shorter and longer than `duration`.
-  ///
-  /// In particular, an implementation may schedule the next callback, e.g.,
-  /// a `duration` after either when the previous callback ended,
-  /// when the previous callback started, or when the previous callback was
-  /// scheduled for - even if the actual callback was delayed.
-  ///
-  /// A negative [duration] is treated the same as [Duration.zero].
-  ///
-  /// Example:
-  /// ```dart
-  /// var counter = 3;
-  /// AnotherTimer.periodic(const Duration(seconds: 2), (timer) {
-  ///   print(timer.tick);
-  ///   counter--;
-  ///   if (counter == 0) {
-  ///     print('Cancel timer');
-  ///     timer.cancel();
-  ///   }
-  /// });
-  /// // Outputs:
-  /// // 1
-  /// // 2
-  /// // 3
-  /// // "Cancel timer"
-  /// ```
-  factory AnotherTimer.periodic(
-    Duration duration,
-    void Function(Timer timer) callback,
-  ) {
-    final watch = Stopwatch()..start();
-    final timer = Timer.periodic(duration, (t) {
-      watch.reset();
-      callback(t);
-    });
-
-    return AnotherTimer._(duration, timer, watch);
-  }
 
   final Duration duration;
 

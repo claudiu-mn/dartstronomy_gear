@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:dartstronomy_gear/src/connection/serial_connection.dart';
+import 'package:dartstronomy_gear/src/math.dart';
 import 'package:dartstronomy_gear/src/mounts/dartstronomy_mount.dart';
 import 'package:dartstronomy_gear/src/mounts/dartstronomy_mount_base.dart';
 import 'package:dartstronomy_gear/src/mounts/movement.dart';
@@ -114,8 +115,8 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
     // minSpeed <= maxSpeed
     const minSpeed = 0.0;
     // const maxSpeed = 0.05;
-    // const maxSpeed = SyntaConstants.lowSpeedMargin;
-    const maxSpeed = 800 * siderealRate;
+    const maxSpeed = SyntaConstants.lowSpeedMargin;
+    // const maxSpeed = 800 * siderealRate;
 
     final speed = minSpeed + movement.speed * (maxSpeed - minSpeed);
 
@@ -123,24 +124,19 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
 
     final direction = movement.direction;
 
-    // x/azimuth/horizontal
-    final channel1Speed = speed * cos(direction);
-    // y/altitude/vertical
-    final channel2Speed = speed * sin(direction);
+    final point = getPointOnCircle(Point(0, 0), speed, direction);
 
     // Not guaranteed that the calls will succeed for both axes, so we randomize
     // which one goes first.
     final records = [
-      (channel: SyntaChannel.one, speed: channel1Speed),
-      (channel: SyntaChannel.two, speed: channel2Speed),
+      (channel: SyntaChannel.one, speed: point.x), // x / azimuth / horizontal
+      (channel: SyntaChannel.two, speed: point.y), // y / altitude / vertical
     ];
     records.shuffle();
 
     for (final r in records) {
       await _setSpeed(r.channel, r.speed);
     }
-
-    print('got speeds: $channel1Speed x $channel2Speed');
   }
 
   /// Throws [DartstronomyMountError]
@@ -231,8 +227,8 @@ extension _SyntaCommands on UdpSyntaMount {
       return;
     }
 
-    await _prepareForSlewing(channel, internalSpeed);
-    // await _prepareForFreeMovement(channel, internalSpeed);
+    // await _prepareForSlewing(channel, internalSpeed);
+    await _prepareForFreeMovement(channel, internalSpeed);
 
     if (internalSpeed.isNegative) {
       internalSpeed *= -1;
@@ -306,7 +302,20 @@ extension _SyntaCommands on UdpSyntaMount {
     var shouldConfigureMotion = false;
 
     final absoluteSpeed = speed.abs();
-    final wantsHighSpeed = absoluteSpeed >= SyntaConstants.lowSpeedMargin;
+
+    final wantsStop = absoluteSpeed == 0;
+    final isRunning = !sts.fullStop;
+    if (wantsStop && isRunning) {
+      shouldStop |= true;
+      shouldConfigureMotion |= false;
+    }
+
+    if (sts.slewingTo) {
+      shouldStop |= true;
+      shouldConfigureMotion |= true;
+    }
+
+    final wantsHighSpeed = absoluteSpeed > SyntaConstants.lowSpeedMargin;
     final isHighSpeed = sts.highSpeed;
     if (wantsHighSpeed != isHighSpeed) {
       shouldStop |= true;
@@ -324,6 +333,8 @@ extension _SyntaCommands on UdpSyntaMount {
 
     if (shouldStop) await _stop(channel, p.stopsInstantly);
 
+    if (!shouldConfigureMotion) return;
+
     while (true) {
       sts = await _getMotorStatus(channel);
       p.status.copyFrom(sts);
@@ -332,10 +343,6 @@ extension _SyntaCommands on UdpSyntaMount {
 
       await Future<void>.delayed(Duration(milliseconds: 100));
     }
-
-    if (absoluteSpeed == 0) return;
-
-    if (!shouldConfigureMotion) return;
 
     await _configureMotion(
       channel,
@@ -441,6 +448,23 @@ extension _SyntaCommands on UdpSyntaMount {
     ));
 
     final response = synRes.dataString;
+
+    final length = response.length;
+    final expectedLength = 3;
+
+    if (response.length != expectedLength) {
+      var message = 'The mount returned a valid response with a malformed ';
+      message += 'body after a motor $channel status request. The body was ';
+      message += length == 0
+          ? 'an empty string. '
+          : 'a $length UTF-16 code unit long string: "$response". ';
+      message += 'A $expectedLength UTF-16 code unit long string was expected.';
+
+      throw DartstronomyMountError(
+        type: DartstronomyMountErrorType.malformedMotorStatus,
+        message: message,
+      );
+    }
 
     if ((response.codeUnitAt(1) & 0x01) != 0) {
       // Axis is running

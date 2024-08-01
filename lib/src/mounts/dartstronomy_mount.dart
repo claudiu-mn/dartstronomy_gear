@@ -14,6 +14,7 @@ enum DartstronomyMountErrorType {
   anotherRequestInProgress,
   setUpFailure,
   notSetUp,
+  malformedMotorStatus,
   unknown,
 }
 

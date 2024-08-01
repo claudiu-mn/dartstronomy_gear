@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dartstronomy_gear/src/advanced_timer.dart';
+import 'package:dartstronomy_gear/src/another_timer.dart';
 import 'package:meta/meta.dart';
 
 enum SerialConnectionExceptionType {

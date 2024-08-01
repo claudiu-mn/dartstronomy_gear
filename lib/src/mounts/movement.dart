@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -11,6 +12,16 @@ class Movement {
 
   final double speed;
   final double direction;
+
+  @override
+  bool operator ==(covariant Movement other) {
+    if (identical(this, other)) return true;
+
+    return speed == other.speed && direction == other.direction;
+  }
+
+  @override
+  int get hashCode => ListEquality<double>().hash([speed, direction]);
 
   @override
   String toString() {
