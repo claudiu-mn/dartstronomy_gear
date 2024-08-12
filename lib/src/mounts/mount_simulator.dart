@@ -10,12 +10,18 @@ final class MountSimulator extends DartstronomyMountBase<void, void>
 
   @override
   String get name =>
-      'Mt Simulator [${identityHashCode(this).toRadixString(16).toUpperCase()}]';
+      'Mt Sim [${identityHashCode(this).toRadixString(16).toUpperCase()}]';
 
   bool _wasSetUp = false;
 
   @override
-  Future<void> setMovement(Movement movement) async {
+  Future<void> cruise(Movement movement) async {
+    _throwIfNotSetUp();
+    await _send();
+  }
+
+  @override
+  Future<void> shoot(Movement movement) async {
     _throwIfNotSetUp();
     await _send();
   }
@@ -30,9 +36,25 @@ final class MountSimulator extends DartstronomyMountBase<void, void>
     try {
       await connection.send(null, timeout);
     } on SerialConnectionException catch (e) {
+      DartstronomyMountErrorType errorType;
+
+      switch (e.type) {
+        case SerialConnectionExceptionType.anotherRequestInProgress:
+          errorType = DartstronomyMountErrorType.anotherRequestInProgress;
+          break;
+
+        case SerialConnectionExceptionType.timedOut:
+          errorType = DartstronomyMountErrorType.timedOut;
+          break;
+
+        default:
+          errorType = DartstronomyMountErrorType.unknown;
+          break;
+      }
+
       throw DartstronomyMountError(
-        type: DartstronomyMountErrorType.unknown,
-        message: 'Problem with $connection: $e',
+        type: errorType,
+        message: 'Simulated error with $connection: $e',
       );
     }
   }

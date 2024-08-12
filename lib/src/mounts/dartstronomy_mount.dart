@@ -50,5 +50,8 @@ abstract interface class DartstronomyMount {
   Future<void> setUp();
 
   /// Throws [DartstronomyMountError].
-  Future<void> setMovement(Movement movement);
+  Future<void> cruise(Movement movement);
+
+  /// Throws [DartstronomyMountError].
+  Future<void> shoot(Movement movement);
 }

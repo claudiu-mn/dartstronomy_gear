@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartstronomy_gear/src/debug/debug.dart';
 import 'package:dartstronomy_gear/src/mounts/synta/synta_channel.dart';
 import 'package:dartstronomy_gear/src/mounts/synta/synta_command_header.dart';
 import 'package:dartstronomy_gear/src/mounts/synta/synta_request.dart';
@@ -42,7 +43,10 @@ final class UdpSyntaMountDetector {
       return ((bcd & 0x0000FF) << 16) |
           ((bcd & 0x00FF00)) |
           ((bcd & 0xFF0000) >> 16);
-    } catch (_) {
+    } catch (e) {
+      debugPrint(
+        '$UdpSyntaMountDetector motorboard version error underlying error: $e',
+      );
       return null;
     }
   }

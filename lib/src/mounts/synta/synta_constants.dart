@@ -10,4 +10,6 @@ final class SyntaConstants {
   static const maxMotorSpeed = 500.0;
 
   static const lowSpeedMargin = 128 * siderealRate;
+
+  static const highSpeedMargin = 800 * siderealRate;
 }

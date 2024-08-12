@@ -1,3 +1,4 @@
+import 'package:dartstronomy_gear/src/debug/debug.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
 
@@ -5,7 +6,6 @@ import 'package:universal_io/io.dart';
 final class Lan {
   Lan._();
 
-  // FIXME: Assumes we're working with class C networks
   static Future<List<LanComposition>> get ipv4LanCompositions async {
     final type = InternetAddressType.IPv4;
 
@@ -14,6 +14,8 @@ final class Lan {
     for (final interface in await NetworkInterface.list()) {
       for (final address in interface.addresses) {
         if (address.type == type) {
+          debugPrint('Got ${address.address} on ${interface.name}');
+
           final myIp = address.address;
 
           final lastDotIndex = myIp.lastIndexOf('.');

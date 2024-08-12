@@ -5,6 +5,8 @@ import 'package:meta/meta.dart';
 
 @immutable
 class Movement {
+  static Movement get zero => Movement(speed: 0, direction: 0);
+
   /// Clamps [speed] to `[0, 1]` and [direction] to `[-π, π]`.
   Movement({required double speed, required double direction})
       : speed = speed.clamp(0, 1),

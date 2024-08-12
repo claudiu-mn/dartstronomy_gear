@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:dartstronomy_gear/src/debug/debug.dart';
 import 'package:universal_io/io.dart';
 
 enum SocketErrorType { bindFailure, generalFailure }
@@ -44,9 +45,12 @@ final class OneShotUdp {
 
     _socket.listen(
       _onRawSocketEvent,
-      onError: (_) => _errorCompleter.complete(
-        SocketError(type: SocketErrorType.generalFailure),
-      ),
+      onError: (Object e) {
+        debugPrint('$OneShotUdp $SocketError Underlying error: $e');
+        _errorCompleter.complete(
+          SocketError(type: SocketErrorType.generalFailure),
+        );
+      },
     );
 
     final result = await Future.any<dynamic>(

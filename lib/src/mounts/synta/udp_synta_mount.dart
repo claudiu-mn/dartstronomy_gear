@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:dartstronomy_gear/src/connection/serial_connection.dart';
-import 'package:dartstronomy_gear/src/math.dart';
+import 'package:dartstronomy_gear/src/math/math.dart';
 import 'package:dartstronomy_gear/src/mounts/dartstronomy_mount.dart';
 import 'package:dartstronomy_gear/src/mounts/dartstronomy_mount_base.dart';
 import 'package:dartstronomy_gear/src/mounts/movement.dart';
@@ -107,20 +107,23 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
   int get _modelInt => _motorBoardVersion & 0xFF;
 
   @override
-  Future<void> setMovement(Movement movement) async {
-    _throwIfNotSetUp();
+  Future<void> cruise(Movement movement) {
+    return _setMovement(movement, SyntaConstants.lowSpeedMargin);
+  }
 
-    // FIXME: Find out the maxSpeed value.
+  @override
+  Future<void> shoot(Movement movement) {
+    return _setMovement(movement, SyntaConstants.highSpeedMargin);
+  }
+
+  /// Throws [DartstronomyMountError].
+  Future<void> _setMovement(Movement movement, double maxSpeed) async {
+    _throwIfNotSetUp();
 
     // minSpeed <= maxSpeed
     const minSpeed = 0.0;
-    // const maxSpeed = 0.05;
-    const maxSpeed = SyntaConstants.lowSpeedMargin;
-    // const maxSpeed = 800 * siderealRate;
 
     final speed = minSpeed + movement.speed * (maxSpeed - minSpeed);
-
-    // print('trying speed: $speed');
 
     final direction = movement.direction;
 

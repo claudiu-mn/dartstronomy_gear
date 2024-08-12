@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dartstronomy_gear/src/connection/serial_connection.dart';
+import 'package:dartstronomy_gear/src/debug/debug.dart';
 import 'package:meta/meta.dart';
 import 'package:universal_io/io.dart';
 
@@ -22,13 +23,16 @@ final class UdpConnection with SerialConnectionBase<Uint8List, Uint8List> {
     if (event == RawSocketEvent.read) {
       completeNormally(_socket.receive()?.data);
     } else if (event == RawSocketEvent.closed) {
-      // FIXME: What do we do here?
+      debugPrint('Socket closed.');
     }
   }
 
-  void _onStreamError(Object error) => completeWithException(
-        SerialConnectionException(type: SerialConnectionExceptionType.unknown),
-      );
+  void _onStreamError(Object error) {
+    debugPrint('$UdpConnection stream error underlying error: $error');
+    completeWithException(
+      SerialConnectionException(type: SerialConnectionExceptionType.unknown),
+    );
+  }
 
   @override
   @protected
