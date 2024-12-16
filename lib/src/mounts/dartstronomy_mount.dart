@@ -1,6 +1,6 @@
 import 'package:dartstronomy_gear/src/mounts/movement.dart';
 
-enum DartstronomyMountErrorType {
+enum DartstronomyMountExceptionType {
   unknownCommand,
   commandLength,
   motorNotStopped,
@@ -18,10 +18,10 @@ enum DartstronomyMountErrorType {
   unknown,
 }
 
-class DartstronomyMountError extends Error {
-  DartstronomyMountError({required this.type, this.message});
+class DartstronomyMountException implements Exception {
+  DartstronomyMountException({required this.type, this.message});
 
-  final DartstronomyMountErrorType type;
+  final DartstronomyMountExceptionType type;
   final String? message;
 
   @override
@@ -46,12 +46,12 @@ abstract interface class DartstronomyMount {
   /// The initial call sets up the mount for it to be used.
   /// Subsequent calls do nothing.
   ///
-  /// Throws [DartstronomyMountError].
+  /// Throws [DartstronomyMountException].
   Future<void> setUp();
 
-  /// Throws [DartstronomyMountError].
+  /// Throws [DartstronomyMountException].
   Future<void> cruise(Movement movement);
 
-  /// Throws [DartstronomyMountError].
+  /// Throws [DartstronomyMountException].
   Future<void> shoot(Movement movement);
 }

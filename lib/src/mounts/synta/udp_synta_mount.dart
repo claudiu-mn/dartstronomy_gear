@@ -90,8 +90,8 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
       // Release the hounds.
       _wasSetUp = true;
     } catch (_) {
-      throw DartstronomyMountError(
-        type: DartstronomyMountErrorType.setUpFailure,
+      throw DartstronomyMountException(
+        type: DartstronomyMountExceptionType.setUpFailure,
       );
     }
   }
@@ -116,7 +116,7 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
     return _setMovement(movement, SyntaConstants.highSpeedMargin);
   }
 
-  /// Throws [DartstronomyMountError].
+  /// Throws [DartstronomyMountException].
   Future<void> _setMovement(Movement movement, double maxSpeed) async {
     _throwIfNotSetUp();
 
@@ -142,19 +142,19 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
     }
   }
 
-  /// Throws [DartstronomyMountError]
+  /// Throws [DartstronomyMountException]
   Future<SyntaResponse> _getValidResponseOrThrow(SyntaRequest request) async {
     try {
       final response = SyntaResponse.fromBytes(await makeRequest(request));
       if (response.type == SyntaResponseType.unknown) {
-        throw DartstronomyMountError(
-          type: DartstronomyMountErrorType.malformedResponse,
+        throw DartstronomyMountException(
+          type: DartstronomyMountExceptionType.malformedResponse,
           message: 'Response content: "${response.dataString}"',
         );
       }
 
       if (response.type == SyntaResponseType.error) {
-        throw DartstronomyMountError(
+        throw DartstronomyMountException(
           type: response.dataString.toMountExceptionType(),
         );
       }
@@ -168,8 +168,8 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
 extension _Helpers on UdpSyntaMount {
   void _throwIfNotSetUp() {
     if (!_wasSetUp) {
-      throw DartstronomyMountError(
-        type: DartstronomyMountErrorType.notSetUp,
+      throw DartstronomyMountException(
+        type: DartstronomyMountExceptionType.notSetUp,
         message: 'Forgot to call [DartstronomyMount.setUp]?',
       );
     }
@@ -463,8 +463,8 @@ extension _SyntaCommands on UdpSyntaMount {
           : 'a $length UTF-16 code unit long string: "$response". ';
       message += 'A $expectedLength UTF-16 code unit long string was expected.';
 
-      throw DartstronomyMountError(
-        type: DartstronomyMountErrorType.malformedMotorStatus,
+      throw DartstronomyMountException(
+        type: DartstronomyMountExceptionType.malformedMotorStatus,
         message: message,
       );
     }
@@ -572,41 +572,41 @@ extension _SyntaMountModelStrings on SyntaMountModel {
 }
 
 extension _SyntaErrorCodeStrings on String {
-  DartstronomyMountErrorType toMountExceptionType() => switch (this) {
-        '0' => DartstronomyMountErrorType.unknownCommand,
-        '1' => DartstronomyMountErrorType.commandLength,
-        '2' => DartstronomyMountErrorType.motorNotStopped,
-        '3' => DartstronomyMountErrorType.invalidCharacter,
-        '4' => DartstronomyMountErrorType.notInitialized,
-        '5' => DartstronomyMountErrorType.driverSleeping,
-        '7' => DartstronomyMountErrorType.pecTrainingRunning,
-        '8' => DartstronomyMountErrorType.noValidPecData,
-        _ => DartstronomyMountErrorType.unknown,
+  DartstronomyMountExceptionType toMountExceptionType() => switch (this) {
+        '0' => DartstronomyMountExceptionType.unknownCommand,
+        '1' => DartstronomyMountExceptionType.commandLength,
+        '2' => DartstronomyMountExceptionType.motorNotStopped,
+        '3' => DartstronomyMountExceptionType.invalidCharacter,
+        '4' => DartstronomyMountExceptionType.notInitialized,
+        '5' => DartstronomyMountExceptionType.driverSleeping,
+        '7' => DartstronomyMountExceptionType.pecTrainingRunning,
+        '8' => DartstronomyMountExceptionType.noValidPecData,
+        _ => DartstronomyMountExceptionType.unknown,
       };
 }
 
 extension _DartstronomyMountErrors on SerialConnectionException {
-  DartstronomyMountError toDartstronomyMountError() {
+  DartstronomyMountException toDartstronomyMountError() {
     switch (type) {
       case SerialConnectionExceptionType.emptyResponse:
-        return DartstronomyMountError(
-          type: DartstronomyMountErrorType.malformedResponse,
+        return DartstronomyMountException(
+          type: DartstronomyMountExceptionType.malformedResponse,
           message: 'Empty response',
         );
 
       case SerialConnectionExceptionType.anotherRequestInProgress:
-        return DartstronomyMountError(
-          type: DartstronomyMountErrorType.anotherRequestInProgress,
+        return DartstronomyMountException(
+          type: DartstronomyMountExceptionType.anotherRequestInProgress,
         );
 
       case SerialConnectionExceptionType.timedOut:
-        return DartstronomyMountError(
-          type: DartstronomyMountErrorType.timedOut,
+        return DartstronomyMountException(
+          type: DartstronomyMountExceptionType.timedOut,
         );
 
       case SerialConnectionExceptionType.unknown:
-        return DartstronomyMountError(
-          type: DartstronomyMountErrorType.unknown,
+        return DartstronomyMountException(
+          type: DartstronomyMountExceptionType.unknown,
         );
     }
   }

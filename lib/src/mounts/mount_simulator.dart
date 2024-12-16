@@ -36,23 +36,23 @@ final class MountSimulator extends DartstronomyMountBase<void, void>
     try {
       await connection.send(null, timeout);
     } on SerialConnectionException catch (e) {
-      DartstronomyMountErrorType errorType;
+      DartstronomyMountExceptionType errorType;
 
       switch (e.type) {
         case SerialConnectionExceptionType.anotherRequestInProgress:
-          errorType = DartstronomyMountErrorType.anotherRequestInProgress;
+          errorType = DartstronomyMountExceptionType.anotherRequestInProgress;
           break;
 
         case SerialConnectionExceptionType.timedOut:
-          errorType = DartstronomyMountErrorType.timedOut;
+          errorType = DartstronomyMountExceptionType.timedOut;
           break;
 
         default:
-          errorType = DartstronomyMountErrorType.unknown;
+          errorType = DartstronomyMountExceptionType.unknown;
           break;
       }
 
-      throw DartstronomyMountError(
+      throw DartstronomyMountException(
         type: errorType,
         message: 'Simulated error with $connection: $e',
       );
@@ -61,8 +61,8 @@ final class MountSimulator extends DartstronomyMountBase<void, void>
 
   void _throwIfNotSetUp() {
     if (!_wasSetUp) {
-      throw DartstronomyMountError(
-        type: DartstronomyMountErrorType.notSetUp,
+      throw DartstronomyMountException(
+        type: DartstronomyMountExceptionType.notSetUp,
       );
     }
   }
