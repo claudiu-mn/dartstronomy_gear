@@ -19,6 +19,7 @@ final class SyntaCommandHeader {
   static const setMotionMode = SyntaCommandHeader._('G');
   static const startMotion = SyntaCommandHeader._('J');
   static const stopMotion = SyntaCommandHeader._('K');
+  // FIXME(claudiu-mn): Doesn't support [SyntaChannel.both]. Investigate.
   static const stopMotionInstantly = SyntaCommandHeader._('L');
 
   static const setPosition = SyntaCommandHeader._('E');

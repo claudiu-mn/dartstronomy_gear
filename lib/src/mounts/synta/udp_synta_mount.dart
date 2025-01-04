@@ -116,6 +116,23 @@ final class UdpSyntaMount extends DartstronomyMountBase<Uint8List, Uint8List>
     return _setMovement(movement, SyntaConstants.highSpeedMargin);
   }
 
+  @override
+  Future<void> emergencyBrake() async {
+    _throwIfNotSetUp();
+
+    // Not guaranteed that the calls will succeed for both axes, so we randomize
+    // which one goes first.
+    final channels = [
+      SyntaChannel.one, // x / azimuth / horizontal
+      SyntaChannel.two, // y / altitude / vertical
+    ];
+    channels.shuffle();
+
+    for (final channel in channels) {
+      await _stop(channel, true);
+    }
+  }
+
   /// Throws [DartstronomyMountException].
   Future<void> _setMovement(Movement movement, double maxSpeed) async {
     _throwIfNotSetUp();

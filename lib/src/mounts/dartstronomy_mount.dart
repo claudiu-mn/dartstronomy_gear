@@ -54,4 +54,9 @@ abstract interface class DartstronomyMount {
 
   /// Throws [DartstronomyMountException].
   Future<void> shoot(Movement movement);
+
+  /// Abruptly stops any mount movement.
+  ///
+  /// Throws [DartstronomyMountException].
+  Future<void> emergencyBrake();
 }

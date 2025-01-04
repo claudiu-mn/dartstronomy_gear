@@ -27,6 +27,12 @@ final class MountSimulator extends DartstronomyMountBase<void, void>
   }
 
   @override
+  Future<void> emergencyBrake() async {
+    _throwIfNotSetUp();
+    await _send();
+  }
+
+  @override
   Future<void> setUp() async {
     await _send();
     _wasSetUp = true;
