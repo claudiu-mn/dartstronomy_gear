@@ -15,21 +15,33 @@ export 'package:dartstronomy_gear/src/search/mount_search.dart';
 final class DartstronomyGear {
   const DartstronomyGear._();
 
+  /// Returns a [Future] that completes with a [Set] of [String]s
+  /// that represent the names of the network interfaces on which
+  /// [DartstronomyGear] can look for [DartstronomyMount]s.
+  static Future<Set<String>> get namesOfMountSearchCapableNetworkInterfaces =>
+      getNamesOfSearchableNetworkInterfaces();
+
   /// The [MountSearch.stream] emits a [DartstronomyMount] for every
   /// mount within reach.
   ///
-  /// [searchTimeout] dictates how much to wait for an answer from a potential
+  /// [timeout] dictates how much to wait for an answer from a potential
   /// mount.
-  static MountSearch startMountSearch(Duration searchTimeout) =>
-      getMountSearch(searchTimeout);
+  ///
+  /// [targetNetworkInterfaceNames] must be a subset of
+  /// [DartstronomyGear.namesOfMountSearchCapableNetworkInterfaces].
+  static MountSearch startMountSearch({
+    required Duration timeout,
+    required Set<String> targetNetworkInterfaceNames,
+  }) =>
+      getMountSearch(timeout, targetNetworkInterfaceNames);
 
   /// Returns a new simulated [DartstronomyMount].
   /// [reliability] will be clamped to be within [0, 1].
   /// Supply [seed] to insure reproducibility.
-  static DartstronomyMount getAMountSimulator(
-    double reliability, [
+  static DartstronomyMount getAMountSimulator({
+    required double reliability,
     int? seed,
-  ]) =>
+  }) =>
       getSimulatedMount(reliability, seed);
 
   static set debugMode(bool value) {

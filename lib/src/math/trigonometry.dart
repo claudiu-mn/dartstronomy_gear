@@ -12,5 +12,3 @@ Point<double> getPointOnEllipse(Point center, Size halfSize, num angle) {
 Point<double> getPointOnCircle(Point center, num radius, num angle) {
   return getPointOnEllipse(center, Size.square(radius), angle);
 }
-
-const double degreesToRadians = pi / 180;
